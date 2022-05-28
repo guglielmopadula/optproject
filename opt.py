@@ -254,8 +254,6 @@ plt.tight_layout()
 plt.plot()
 fig3.savefig("fig3.png",dpi=900)
 
-
-
 fig4, axs4 = plt.subplots(2, 2)
 for j in range(4):
     axs4[j//2,j%2].plot([i for i in range(0,100,10)],times2[0:10,j])
