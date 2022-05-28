@@ -28,14 +28,16 @@ def cpm(N,S,T):
 
 #Model has fixed size
 def model(J,H,N):
+### SEED SET###
     np.random.seed(2022)
-######################DATA PREPARATION######################
+### MODEL SET###
     env = gp.Env(empty=True)
     env.setParam("OutputFlag",0)
-    env.start()
-
-    Mg=90000
+    env.start()    
     model=gp.Model(env=env)
+######################	COMMON DATA AND PARAMETERS PREPARATION ######################
+    Mg=90000
+
     FOC=100+np.random.rand()*(1000-100)
     MOB=2000+np.random.rand()*(20000-2000)
     OB=np.random.rand()
@@ -43,8 +45,8 @@ def model(J,H,N):
     OV=np.random.rand()
     AP=5000+(50000-5000)*np.random.rand()
     
-   
-#Parameters taken by the data (r1)
+
+
     S=np.zeros(N, dtype=object)
     for i in range(N-1):
         temp=np.random.randint(0,N-i-1,1)
@@ -68,7 +70,7 @@ def model(J,H,N):
             MMF[i,j]=C[i,0]/C[i,j]
     Wmin=cpm(N,S,T)
     Wmax=Wmin+J
-
+#### SETTING SOME VARIABLES BASED ON THE OBJECTIVE FUNCTION ######
     if H==0:
         W=model.addVar(name="W")
         CL=18000
@@ -86,7 +88,7 @@ def model(J,H,N):
         CL=18000 
     
     if H==4 or H==5:
-        W=Wmax
+        W=model.addVar(name="W")
         CL=18000
 
     
@@ -98,6 +100,7 @@ def model(J,H,N):
     rW=np.random.rand()
     V=np.random.randint(1,Wmax)
 
+###### SET MODEL CONSTRAINTS######
 
     DCsum=np.sum(C[:,0])#Equation 1 
     VOCsum=OV*DCsum# Equation 2
@@ -174,7 +177,7 @@ def model(J,H,N):
     
         
     model.optimize()
-
+#### BENCHMARKING OPTIONS#####
     if H==4:
         return len(model.getConstrs())
 
@@ -184,7 +187,7 @@ def model(J,H,N):
 
 
 
-
+########### BENCHMARKING AND GRAPH GENERATION #######
 times=np.zeros([10,4])
 for i in range(0,10):
     print(i)
@@ -193,7 +196,6 @@ for i in range(0,10):
         temp=model(i*100,j,20)
         times[i][j]=time.time()-timeold
 
-print("done1")
 
 constrs=np.zeros(10)
 var=np.zeros(10)
@@ -220,7 +222,7 @@ plt.tight_layout()
 plt.plot()
 fig2.savefig("fig2.png",dpi=900)
 
-print("done2")
+
 
 
 times2=np.zeros([10,4])
@@ -233,8 +235,6 @@ for i in range(0,10):
 plt.tight_layout()
 plt.plot()
 
-print("done3")
-
 
 constrs2=np.zeros(10)
 var2=np.zeros(10)
@@ -242,9 +242,6 @@ for i in range(10):
     constrs2[i]=model(20,4,i*10+4)
     var2[i]=model(20,5,i*10+4)
     
-print("done4")
-
-
 fig3, axs3 = plt.subplots(2, 1)
 axs3[0].plot([i for i in range(0,100,10)],constrs2)
 axs3[1].plot([i for i in range(0,100,10)],var2)
